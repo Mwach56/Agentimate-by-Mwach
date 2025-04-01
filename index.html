@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentimate - The Agent Who Animates Your Ideas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #FF6B6B;
+            --background-color: #f0f6ff;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .hero {
+            position: relative;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .input-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        input {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .features {
+            padding: 2rem 0;
+            opacity: 1;
+            margin-top: -4rem;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .features h2 {
+            text-align: center;
+            margin: 0 auto 2rem;
+            font-size: 3.5rem;
+            position: relative;
+            display: inline-block;
+            color: #2c3e50;
+            text-transform: uppercase;
+            padding: 1rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            transform-style: preserve-3d;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            z-index: 2;
+        }
+
+        .checkerboard-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            z-index: -1;
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(15deg);
+        }
+
+        .checker-square {
+            width: 100%;
+            height: 100%;
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: perspective(1000px) rotateX(15deg);
+            }
+            50% {
+                transform: perspective(1000px) rotateX(18deg);
+            }
+        }
+
+        .features h2::before,
+        .features h2::after {
+            display: none;
+        }
+
+        .ripple-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 3rem;
+            min-height: 150px;
+            margin: 0 auto;
+        }
+
+        .ripple {
+            position: absolute;
+            background: linear-gradient(90deg, 
+                rgba(44, 62, 80, 0.15), 
+                rgba(52, 152, 219, 0.2), 
+                rgba(255, 255, 255, 0.15)
+            );
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes rippleWave {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.5;
+                transform: translateX(-50%);
+            }
+            100% {
+                width: 500px;
+                height: 500px;
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin: 0 auto;
+            max-width: 1000px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            opacity: 1;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .feature-card p {
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card.lightning-fast {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(20);
+                opacity: 0;
+            }
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-100px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Agentimate</div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="floating-shapes"></div>
+        <div class="hero-content">
+            <h1>Idea to design in seconds.</h1>
+            <p>Agentimate is your superhuman AI design assistant.</p>
+            <div class="input-container">
+                <input type="text" placeholder="Describe your design idea...">
+                <button>Generate Design</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="features">
+            <div class="ripple-container">
+                <h2 data-text="Why Choose Agentimate?">Why Choose Agentimate?</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card lightning-fast">
+                    <h3>Lightning Fast</h3>
+                    <p>Transform your ideas into stunning designs in seconds.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>AI-Powered</h3>
+                    <p>Cutting-edge AI technology that understands your vision.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Customizable</h3>
+                    <p>Fine-tune and adjust designs to match your exact needs.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Create floating shapes
+        const shapes = ['circle', 'square', 'triangle'];
+        const colors = ['#4A90E2', '#FF6B6B', '#50E3C2'];
+        const floatingShapes = document.querySelector('.floating-shapes');
+
+        for (let i = 0; i < 15; i++) {
+            const shape = document.createElement('div');
+            shape.classList.add('shape');
+            shape.style.left = `${Math.random() * 100}%`;
+            shape.style.top = `${Math.random() * 100}%`;
+            const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            shape.style.background = randomColor;
+            shape.style.width = `${20 + Math.random() * 30}px`;
+            shape.style.height = `${20 + Math.random() * 30}px`;
+            shape.style.borderRadius = randomShape === 'circle' ? '50%' : '0';
+            floatingShapes.appendChild(shape);
+        }
+
+        // Animations
+        window.addEventListener('DOMContentLoaded', () => {
+            // Hero text animation
+            anime({
+                targets: '.hero h1',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 1000,
+                easing: 'easeOutExpo'
+            });
+
+            anime({
+                targets: '.hero p',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 1000,
+                delay: 200,
+                easing: 'easeOutExpo'
+            });
+
+            anime({
+                targets: '.input-container',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 1000,
+                delay: 400,
+                easing: 'easeOutExpo'
+            });
+
+            // Floating shapes animation
+            anime({
+                targets: '.shape',
+                opacity: [0, 0.6],
+                translateX: () => anime.random(-50, 50),
+                translateY: () => anime.random(-50, 50),
+                scale: () => anime.random(0.5, 1.5),
+                rotate: () => anime.random(-180, 180),
+                duration: () => anime.random(3000, 5000),
+                delay: anime.stagger(100),
+                loop: true,
+                direction: 'alternate',
+                easing: 'easeInOutQuad'
+            });
+
+            // Feature cards animation
+            anime({
+                targets: '.features',
+                opacity: [0, 1],
+                duration: 800,
+                easing: 'easeOutExpo'
+            });
+
+            // Remove the old feature cards floating animation and replace with continuous movement
+            function moveCards() {
+                anime({
+                    targets: '.feature-card',
+                    translateX: function() {
+                        return anime.random(-150, 150);
+                    },
+                    translateY: function() {
+                        return anime.random(-50, 50);
+                    },
+                    rotate: function() {
+                        return anime.random(-10, 10);
+                    },
+                    duration: 4000,
+                    easing: 'easeInOutQuad',
+                    complete: moveCards
+                });
+            }
+
+            // Start the continuous movement
+            moveCards();
+
+            // Enhanced ripple effect animation for the heading
+            function createEnhancedRipple() {
+                const container = document.querySelector('.ripple-container');
+                const heading = document.querySelector('.features h2');
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                
+                // Center position
+                ripple.style.top = '50%';
+                ripple.style.left = '50%';
+                ripple.style.transform = 'translate(-50%, -50%)';
+                
+                container.appendChild(ripple);
+
+                // Animate the ripple
+                anime({
+                    targets: ripple,
+                    keyframes: [
+                        {
+                            width: ['0px', '600px'],
+                            height: ['0px', '600px'],
+                            opacity: [0.9, 0],
+                            scale: [1, 1.2],
+                            duration: 2500,
+                            easing: 'easeOutSine'
+                        }
+                    ],
+                    complete: function() {
+                        ripple.remove();
+                    }
+                });
+            }
+
+            // Create multiple ripples at different intervals
+            setInterval(createEnhancedRipple, 1500);
+
+            // Remove previous heading animations
+            const rippleContainer = document.querySelector('.ripple-container');
+            const heading = document.querySelector('.features h2');
+            
+            // Create checkerboard container
+            const checkerboardContainer = document.createElement('div');
+            checkerboardContainer.className = 'checkerboard-container';
+            rippleContainer.appendChild(checkerboardContainer);
+
+            // Create checker squares
+            const numRows = 5;
+            const numCols = 10;
+            for (let i = 0; i < numRows * numCols; i++) {
+                const square = document.createElement('div');
+                square.className = 'checker-square';
+                checkerboardContainer.appendChild(square);
+            }
+
+            // Animate checker squares
+            function animateCheckerboard() {
+                anime({
+                    targets: '.checker-square',
+                    scale: [
+                        {value: 0, duration: 0, delay: anime.stagger(50, {grid: [numCols, numRows], from: 'center'})},
+                        {value: 1, duration: 600, delay: anime.stagger(50, {grid: [numCols, numRows], from: 'center'})}
+                    ],
+                    opacity: [
+                        {value: 0, duration: 0},
+                        {value: 1, duration: 600},
+                        {value: 0, duration: 600, delay: 400}
+                    ],
+                    easing: 'easeInOutQuad',
+                    complete: animateCheckerboard
+                });
+            }
+
+            // Start checkerboard animation
+            animateCheckerboard();
+
+            // Add subtle floating animation to the heading
+            anime({
+                targets: '.checkerboard-container',
+                rotateX: [15, 18],
+                duration: 3000,
+                loop: true,
+                direction: 'alternate',
+                easing: 'easeInOutQuad'
+            });
+
+            // Keep the Lightning Fast card special effects
+            const lightningCard = document.querySelector('.lightning-fast');
+            
+            lightningCard.addEventListener('mouseenter', () => {
+                // Rotate animation
+                anime({
+                    targets: '.lightning-fast',
+                    rotateX: [0, 180],
+                    duration: 1200,
+                    easing: 'easeInOutQuad'
+                });
+
+                // Create fireworks
+                createFireworks(lightningCard);
+            });
+
+            function createFireworks(element) {
+                const rect = element.getBoundingClientRect();
+                const colors = ['#FFD700', '#FF6B6B', '#4A90E2', '#50E3C2'];
+
+                for (let i = 0; i < 20; i++) {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    // Random starting position around the card
+                    const startX = rect.left + (Math.random() * rect.width);
+                    const startY = rect.top + rect.height;
+                    
+                    firework.style.left = startX + 'px';
+                    firework.style.top = startY + 'px';
+                    
+                    document.body.appendChild(firework);
+
+                    // Shooting animation
+                    anime({
+                        targets: firework,
+                        translateY: -100,
+                        translateX: () => anime.random(-50, 50),
+                        scale: [0.5, 1],
+                        duration: 700,
+                        easing: 'easeOutQuad',
+                        complete: () => {
+                            // Explosion animation
+                            anime({
+                                targets: firework,
+                                scale: [1, 3],
+                                opacity: [1, 0],
+                                duration: 1000,
+                                easing: 'easeOutExpo',
+                                complete: () => {
+                                    firework.remove();
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html> 
